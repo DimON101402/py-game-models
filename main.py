@@ -2,6 +2,7 @@ import json
 from db.models import Race, Skill, Player, Guild
 import init_django_orm  # noqa: F401
 
+
 def main() -> None:
     with open("players.json", "r", encoding="utf-8") as f:
         players_data = json.load(f)
@@ -51,6 +52,7 @@ def main() -> None:
                 "guild": guild,
             }
         )
+
 
 if __name__ == "__main__":
     main()
