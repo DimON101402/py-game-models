@@ -27,6 +27,8 @@ def main() -> None:
         if isinstance(guild_data, dict):
             guild_name = guild_data.get("name", "")
             guild_description = guild_data.get("description")
+            if guild_description is None:
+                guild_description = ""
             guild, _ = Guild.objects.get_or_create(
                 name=guild_name,
                 defaults={"description": guild_description}
