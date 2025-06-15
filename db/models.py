@@ -14,7 +14,7 @@ class Race(models.Model):
         (ORK, "Орк"),
     ]
     name = models.CharField(max_length=255, unique=True, choices=RACE_CHOICES)
-    description = models.TextField(blank=True)
+    description = models.TextField(null=True, blank=True)
 
 
 class Skill(models.Model):

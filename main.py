@@ -1,52 +1,43 @@
 import json
-from db.models import Race, Skill, Player, Guild
 import init_django_orm  # noqa: F401
+from db.models import Race, Skill, Player, Guild
 
 
 def main() -> None:
     with open("players.json", "r", encoding="utf-8") as f:
         players_data = json.load(f)
-
-    for player in players_data:
+    for nickname, data in players_data.items():
         race = None
-        skills_data = []
-        if isinstance(player.get("race"), dict):
-            race_info = player["race"]
+        race_data = data.get("race")
+        if isinstance(race_data, dict):
+            race_name = race_data.get("name", "")
+            race_description = race_data.get("description", "")
             race, _ = Race.objects.get_or_create(
-                name=race_info.get("name"),
-                defaults={"description": race_info.get("description", "")}
+                name=race_name,
+                defaults={"description": race_description}
             )
-            skills_data = race_info.get("skills", [])
-        elif isinstance(player.get("race"), str):
-            race, _ = Race.objects.get_or_create(
-                name=player["race"],
-                defaults={"description": ""}
-            )
-
-        for skill in skills_data:
-            Skill.objects.get_or_create(
-                name=skill["name"],
-                race=race,
-                defaults={"bonus": skill.get("bonus", 0)}
-            )
-
+            for skill in race_data.get("skills", []):
+                Skill.objects.get_or_create(
+                    name=skill.get("name", ""),
+                    race=race,
+                    defaults={"bonus": skill.get("bonus", "")}
+                )
         guild = None
-        if isinstance(player.get("guild"), dict):
-            guild_info = player["guild"]
+        guild_data = data.get("guild")
+        if isinstance(guild_data, dict):
+            guild_name = guild_data.get("name", "")
+            guild_description = guild_data.get("description")
             guild, _ = Guild.objects.get_or_create(
-                name=guild_info.get("name"),
-                defaults={"description": guild_info.get("description", "")}
+                name=guild_name,
+                defaults={"description": guild_description}
             )
-        elif isinstance(player.get("guild"), str):
-            guild, _ = Guild.objects.get_or_create(
-                name=player["guild"]
-            )
-
+            guild.description = guild_description
+            guild.save()
         Player.objects.update_or_create(
-            name=player["name"],
+            nickname=nickname,
             defaults={
-                "email": player.get("email", ""),
-                "bio": player.get("bio", ""),
+                "email": data.get("email", ""),
+                "bio": data.get("bio", ""),
                 "race": race,
                 "guild": guild,
             }
